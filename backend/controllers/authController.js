@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { createUser, getUserByEmail, updateUserRole } from '../models/userModel.js';
+import { createUser, getUserByEmail, updateUserRole,getUserById } from '../models/userModel.js';
 
 export const register = async (req, res, next) => {
     try {
         const {username, email, password } = req.body;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if(username.length < 3){
             return res.status(400).json({
                 success : false,
@@ -17,6 +18,18 @@ export const register = async (req, res, next) => {
                 message : "Password must be greater than 8 characters"
             })
 
+        }
+        if(!email || !password || !username) {
+            return res.status(400).json({
+                success : false,
+                message : "All fields are required"
+            })
+        }
+        if(!emailRegex.test(email)){
+            return res.status(400).json({
+                success : false,
+                message : "Invalid email address"
+            })
         }
         const existingUser = await getUserByEmail(email);
         if(existingUser) {
@@ -66,6 +79,7 @@ export const login = async (req, res,next) => {
         return res.cookie("token", token, { 
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite : "strict",
 
          }).status(200).json({
             success : true,
@@ -77,7 +91,7 @@ export const login = async (req, res,next) => {
     }
 }
 
-export const logout = (req, res) => {
+export const logout = (req, res,next) => {
     try {
         res.clearCookie("token");
         return res.status(200).json({
@@ -120,3 +134,40 @@ export const updateRole = async (req, res, next) => {
         
     }
 }
+
+export const profile = async (req, res, next) => {
+    
+    try {
+
+        const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+        // console.log(token);
+        
+        if(!token) {
+            return res.status(401).json({
+                success : false,
+                message : "Unauthorized"
+            })
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await getUserById(decoded.id);
+        if(!user) {
+            return res.status(404).json({
+                success : false,
+                message : "User not found"
+            })
+        }
+        return res.status(200).json({
+            success : true,
+            user : {
+                id : user.id,
+                username : user.username,
+                email : user.email,
+                role : user.role
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
+

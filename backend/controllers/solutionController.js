@@ -6,6 +6,7 @@ import {
   updateSolutionById,
   getSolutionsByCategory,
   searchSolutions,
+  getTotalSolutionsCount,
 } from "../models/solutionModel.js";
 
 export const createSolution = async (req, res, next) => {
@@ -36,11 +37,21 @@ export const createSolution = async (req, res, next) => {
 
 export const getAllSolutions = async (req, res, next) => {
   try {
-    const solutions = await getAll();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const offset = (page-1)*limit;
+    const solutions = await getAll(offset, limit);
+    const total = await getTotalSolutionsCount();
     return res.status(200).json({
       success: true,
       message: "Solutions fetched successfully",
       data: solutions,
+      pagination : {
+        total,
+        page,
+        limit,
+        totalPages : Math.ceil(total/limit)
+      }
     });
   } catch (error) {
     next(error);

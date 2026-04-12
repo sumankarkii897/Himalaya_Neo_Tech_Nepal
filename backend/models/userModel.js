@@ -18,6 +18,14 @@ export const getUserByEmail = async (email) => {
     }
 }
 
+export const getUserById = async (id) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM users WHERE id=?",[id]);
+        return rows[0];
+    } catch (error) {
+        throw new Error(`Error fetching user:  ${error.message}`);
+    }
+}
 export const updateUserRole = async (email, role) => {
     try {
         const [results] = await db.query("UPDATE users SET role=? WHERE email=?",[role,email])

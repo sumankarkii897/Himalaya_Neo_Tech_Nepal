@@ -11,9 +11,9 @@ export const create = async (name, description, category, price) => {
   }
 };
 
-export const getAll = async () => {
+export const getAll = async (offset, limit) => {
   try {
-    const [rows] = await db.query("SELECT * FROM products");
+    const [rows] = await db.query("SELECT * FROM products LIMIT ? OFFSET ?", [limit, offset]);
     return rows;
   } catch (error) {
     throw new Error(`Error fetching products: ${error.message}`);
@@ -73,3 +73,12 @@ export const searchSolutions = async (query) => {
         throw new Error(`Error searching products: ${error.message}`);
     }
 }
+
+export const getTotalSolutionsCount = async () => {
+    try {
+        const [rows] = await db.query("SELECT COUNT(*) as count FROM products");
+        return rows[0].count;
+    } catch (error) {
+        throw new Error(`Error fetching total products count: ${error.message}`);
+    } 
+  } ;
