@@ -12,7 +12,7 @@ import {limiter} from "./middleware/security.js";
 dotenv.config();
 const app = express();
 app.use(cors(
- {  origin : process.env.FRONTEND_URL || "https://himalaya-neo-tech-nepal-afkvl4uhg-sumankarkii897s-projects.vercel.app",
+ {  origin : process.env.FRONTEND_URL,
    credentials : true,
    methods : ["GET","POST","PUT","DELETE"],
    allowedHeaders : ["Content-Type", "Authorization"]}
