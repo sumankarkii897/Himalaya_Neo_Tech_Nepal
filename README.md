@@ -88,7 +88,7 @@ DATABASE_URL=your_mysql_connection_url
 # MYSQLPORT=your_mysql_port
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=1d
-SALT_ROUNDS=10
+SALT_ROUNDS=your_salt_round
 FRONTEND_URL=http://localhost:5173
 ```
 
